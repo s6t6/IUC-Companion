@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kampüs Asistanı',
+      title: 'Companion',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -67,26 +67,47 @@ class _CompanionAppState extends State<CompanionApp> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
+      isScrollControlled: true, 
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
-        height: 250,
+        width: double.infinity,
         child: Column(
+          mainAxisSize: MainAxisSize.min, 
           children: [
-            Container(width: 50, height: 5, decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(10))),
+            Container(
+                width: 50,
+                height: 5,
+                decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(10))),
             const SizedBox(height: 20),
-            const CircleAvatar(radius: 30, backgroundColor: AppColors.gold, child: Text("KÖ", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black))),
+            const CircleAvatar(
+                radius: 30,
+                backgroundColor: AppColors.gold,
+                child: Text("KÖ",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black))),
             const SizedBox(height: 10),
-            const Text("Kubilay Özkan", style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-            const Text("Bilgisayar Mühendisliği", style: TextStyle(color: AppColors.goldAccent)),
+            const Text("Kubilay Özkan",
+                style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
+            const Text("Elektrik-Elektronik Mühendisliği",
+                textAlign: TextAlign.center, // Uzun isimler için ortalama
+                style: TextStyle(color: AppColors.goldAccent)),
             const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.redAccent),
-              title: const Text("Çıkış Yap", style: TextStyle(color: Colors.redAccent)),
+              title: const Text("Çıkış Yap",
+                  style: TextStyle(color: Colors.redAccent)),
               onTap: () => Navigator.pop(context),
             ),
+            // Alt kısımda güvenli boşluk bırakmak için (iPhone home bar vs.)
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -107,7 +128,7 @@ class _CompanionAppState extends State<CompanionApp> {
             const UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: AppColors.background),
               accountName: Text("Kubilay Özkan", style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold)),
-              accountEmail: Text("Öğrenci No: 123456789", style: TextStyle(color: Colors.grey)),
+              accountEmail: Text("Öğrenci No: 1316230077", style: TextStyle(color: Colors.grey)),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: AppColors.gold,
                 child: Text("KÖ", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
@@ -139,9 +160,9 @@ class _CompanionAppState extends State<CompanionApp> {
                     onTap: _openProfileMenu,
                     child: Row(
                       children: <Widget>[
-                        Column(
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children: const [
+                          children: [
                             Text("Hesabım", style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
                             Text("Kubilay Özkan", style: TextStyle(color: AppColors.grey, fontSize: 10)),
                           ],
@@ -181,17 +202,10 @@ class DashboardView extends StatelessWidget {
         children: [
           // LOGO
           SizedBox(
-            height: 120,
+            height: 180,
             child: Image.asset(
               'assets/images/logo.png',
               fit: BoxFit.contain,
-              errorBuilder: (c, o, s) => Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.school, size: 60, color: AppColors.gold),
-                  Text("Logo Yüklenemedi", style: TextStyle(color: AppColors.grey)),
-                ],
-              ),
             ),
           ),
           const SizedBox(height: 30),
@@ -199,17 +213,12 @@ class DashboardView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [AppColors.gold.withOpacity(0.2), AppColors.surface]),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.gold.withOpacity(0.3)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Hoş Geldin, Kubilay", style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Hoş Geldin, Kubilay", style: TextStyle(color: AppColors.gold, fontSize: 20, fontWeight: FontWeight.bold)),
                 SizedBox(height: 5),
-                Text("Derslerinde başarılar dileriz.", style: TextStyle(color: Colors.white70)),
+                Text("Derslerinde başarılar dileriz.", style: TextStyle(color: AppColors.gold )),
               ],
             ),
           ),
@@ -219,7 +228,7 @@ class DashboardView extends StatelessWidget {
   }
 }
 
-// 2. KURUM EKRANI (Institution) - CANVAS VE DİĞER LİNKLER SİLİNDİ
+// 2. KURUM EKRANI (Institution)
 class InstitutionView extends StatelessWidget {
   const InstitutionView({super.key});
 
@@ -267,7 +276,7 @@ class InstitutionView extends StatelessWidget {
             ),
           ),
           
-          // CANVAS VE DİĞER BAĞLANTILAR KISMI BURADAN SİLİNDİ
+        
         ],
       ),
     );
@@ -294,8 +303,8 @@ class CalculatorView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStat("Mevcut", "3.05"),
-                _buildStat("Tahmini", "3.20", color: AppColors.green),
+                _buildStat("Mevcut", "3.4"),
+                _buildStat("Tahmini", "3.49", color: AppColors.green),
                 _buildStat("Kredi", "18"),
               ],
             ),
@@ -389,13 +398,13 @@ class UploadView extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.gold, style: BorderStyle.solid, width: 1),
             ),
-            child: Column(
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Icon(Icons.cloud_upload_outlined, size: 60, color: AppColors.gold),
                 SizedBox(height: 10),
-                Text("Dosyaları Buraya Sürükle", style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
-                Text("PDF, DOCX, PPTX (Max 50MB)", style: TextStyle(color: AppColors.grey, fontSize: 12)),
+                Text("Dosyaları Buradan Yükle", style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold)),
+                Text("PDF, DOCX", style: TextStyle(color: AppColors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -423,8 +432,7 @@ class UploadView extends StatelessWidget {
             child: ListView(
               children: [
                 _buildFileItem("Ders_Programi.pdf", "2.4 MB", "Bugün"),
-                _buildFileItem("Proje_Raporu.docx", "5.1 MB", "Dün"),
-                _buildFileItem("Sunum.pptx", "12 MB", "12 Ara"),
+                _buildFileItem("Transktipt.pdf", "5.1 MB", "Dün"),
               ],
             ),
           ),
@@ -466,7 +474,7 @@ class ScheduleView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
-                child: const Text("15 Aralık Pzt", style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold)),
+                child: const Text("17 Aralık Çarş", style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -476,10 +484,10 @@ class ScheduleView extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                _buildTimelineItem("09:00", "10:30", "Veri Yapıları", "Amfi-2", "Ahmet Y.", true),
-                _buildTimelineItem("10:45", "12:15", "Olasılık", "D-203", "Mehmet K.", false),
-                _buildTimelineItem("13:00", "15:00", "Yemek Arası", "Yemekhane", "", false, isBreak: true),
-                _buildTimelineItem("15:00", "17:00", "Bilgisayar Ağları", "Lab-1", "Ayşe S.", false),
+                _buildTimelineItem("09:00", "11:10", "Kriptoloji", "D526", "Prof. Dr. Muhammed Ali Aydın", false),
+                _buildTimelineItem("11:15", "13:00", "Bilgisayar Aritmetiği", "D-523", "Prof. Dr. Ahmet Sertbaş", false),
+                _buildTimelineItem("13:00", "14:00", "Yemek Arası", "Yemekhane", "", false, isBreak: true),
+                _buildTimelineItem("14:00", "16:40", "Mobile Programming", "Lab-B", "Dr. Öğr. Üyesi Özgürcan T..", true),
               ],
             ),
           ),
