@@ -7,13 +7,6 @@ import (
 	"server/internal/models"
 )
 
-//
-// ==============================
-// DEPARTMENT REPOSITORY
-// ==============================
-//
-
-// InsertDepartment tek bir department kaydı ekler / günceller
 func InsertDepartment(db *sql.DB, d models.DepartmentNode) error {
 	_, err := db.Exec(`
 		INSERT OR REPLACE INTO departments
@@ -27,7 +20,6 @@ func InsertDepartment(db *sql.DB, d models.DepartmentNode) error {
 	return err
 }
 
-// GetAllDepartments tüm department kayıtlarını flat liste olarak döner
 func GetAllDepartments(db *sql.DB) ([]models.DepartmentNode, error) {
 	rows, err := db.Query(`
 		SELECT department_id, department_name, department_parent_id, department_guid
@@ -55,13 +47,6 @@ func GetAllDepartments(db *sql.DB) ([]models.DepartmentNode, error) {
 	return departments, nil
 }
 
-//
-// ==============================
-// COURSE REPOSITORY
-// ==============================
-//
-
-// InsertCourse course tablosuna kayıt ekler / günceller
 func InsertCourse(db *sql.DB, c models.Course) error {
 	_, err := db.Exec(`
 		INSERT OR REPLACE INTO courses
@@ -84,7 +69,6 @@ func InsertCourse(db *sql.DB, c models.Course) error {
 	return err
 }
 
-// GetCourse course_code ile tek bir course döner
 func GetCourse(db *sql.DB, courseCode string) (*models.Course, error) {
 	row := db.QueryRow(`
 		SELECT
@@ -117,7 +101,6 @@ func GetCourse(db *sql.DB, courseCode string) (*models.Course, error) {
 	return &c, nil
 }
 
-// GetAllCourses tüm course kayıtlarını döner
 func GetAllCourses(db *sql.DB) ([]models.Course, error) {
 	rows, err := db.Query(`
 		SELECT
@@ -155,13 +138,6 @@ func GetAllCourses(db *sql.DB) ([]models.Course, error) {
 	return courses, nil
 }
 
-//
-// ==============================
-// COURSE DETAIL REPOSITORY
-// ==============================
-//
-
-// InsertCourseDetail course_details tablosuna kayıt ekler / günceller
 func InsertCourseDetail(db *sql.DB, d models.CourseDetail) error {
 
 	outcomesJSON, err := json.Marshal(d.Outcomes)
@@ -185,7 +161,6 @@ func InsertCourseDetail(db *sql.DB, d models.CourseDetail) error {
 	return err
 }
 
-// GetCourseDetail course + course_detail JOIN ederek döner
 func GetCourseDetail(db *sql.DB, courseCode string) (*models.CourseDetail, error) {
 
 	row := db.QueryRow(`
