@@ -7,9 +7,6 @@ class SchoolZoneService {
   final LocationService _locationService = LocationService();
   final SoundService _soundService = SoundService();
 
-  /// Kullanıcı okulda mı?
-  /// Evet → Sessiz
-  /// Hayır → Normal
   Future<void> checkSchoolZone() async {
     final userPosition =
         await _locationService.getCurrentLocation();
