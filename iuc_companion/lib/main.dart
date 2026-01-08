@@ -120,10 +120,10 @@ class _CompanionAppState extends State<CompanionApp> {
 
       if (distance <= SchoolLocation.radius) {
         await soundService.setSilent();
-        debugPrint("📍 Okul içi → Telefon sessize alındı");
+        debugPrint(" Okul içi → Telefon sessize alındı");
       }
     } catch (e) {
-      debugPrint("❌ Konum tetikleme hatası: $e");
+      debugPrint(" Konum tetikleme hatası: $e");
     }
   }
 
