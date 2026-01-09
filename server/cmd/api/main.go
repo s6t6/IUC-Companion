@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -25,10 +26,17 @@ func main() {
 	handler := api.NewHandler(db)
 	router := api.SetupRoutes(handler)
 
-	port := ":8080"
-	fmt.Printf("Sunucu %s portunda çalışıyor...\n", port)
+	port := os.Getenv("PORT")
 
-	if err := http.ListenAndServe(port, router); err != nil {
+	if port == "" {
+		port = "8080"
+	}
+
+	addr := ":" + port
+
+	fmt.Printf("Sunucu %s portunda çalışıyor...\n", addr)
+
+	if err := http.ListenAndServe(addr, router); err != nil {
 		log.Fatal(err)
 	}
 }
