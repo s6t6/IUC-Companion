@@ -2,7 +2,7 @@ package main
 
 import (
 	"companion_server/internal/api"
-	"companion_server/internal/scraper"
+	"companion_server/internal/storage"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,10 +10,19 @@ import (
 
 func main() {
 
-	ebsService := scraper.NewService()
+	// 1. DB Kurulumu
+	db := storage.OpenDB()
+	if err := storage.CreateTables(db); err != nil {
+		log.Fatal("Tablo oluşturma hatası:", err)
+	}
 
-	handler := api.NewHandler(ebsService)
+	// 2. Scraper & Scheduler Kurulumu (Her başlatmada uzun bi tarama yaptığı için çıkardım şimdilik. Veri DB'de mevcut.)
+	//ebsService := scraper.NewService()
+	//scheduler := tasks.NewScheduler(db, ebsService)
+	//scheduler.Start(24 * time.Hour) // Scraper çalışma sıklığı
 
+	// 3. API Handler Kurulumu
+	handler := api.NewHandler(db)
 	router := api.SetupRoutes(handler)
 
 	port := ":8080"
