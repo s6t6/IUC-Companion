@@ -1,11 +1,12 @@
 import 'package:floor/floor.dart';
 
-@entity
+// Changed: Added primaryKeys list to include departmentGuid
+@Entity(primaryKeys: ['code', 'departmentGuid'])
 class Course {
-  @primaryKey
+  // Removed @primaryKey annotation from here
   final String code;
   final int departmentId;
-  final String? departmentGuid;
+  final String departmentGuid; // Changed: Made non-nullable
   final String name;
   final double credit;
   final double ects;
@@ -22,7 +23,7 @@ class Course {
   Course({
     required this.code,
     required this.departmentId,
-    this.departmentGuid,
+    required this.departmentGuid, // Required now
     required this.name,
     required this.credit,
     required this.ects,
@@ -41,7 +42,7 @@ class Course {
     return Course(
       code: json['code'] ?? '',
       departmentId: json['department_id'] ?? 0,
-      departmentGuid: json['department_guid'],
+      departmentGuid: json['department_guid'] ?? '',
       name: json['name'] ?? '',
       credit: (json['credit'] as num?)?.toDouble() ?? 0.0,
       ects: (json['ects'] as num?)?.toDouble() ?? 0.0,

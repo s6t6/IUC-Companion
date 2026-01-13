@@ -57,14 +57,15 @@ dependencies:
   floor: ^1.5.0
   syncfusion_flutter_pdf: ^32.1.22
   shared_preferences: ^2.5.4
+  volume_controller: ^3.4.1
+  geolocator: ^14.0.2
+  flutter_background_service: ^5.1.0
+  url_launcher: ^6.3.2
  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  geolocator: ^10.1.0
-  volume_controller: ^2.0.7
-  flutter_background_service: ^5.0.5
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -75,6 +76,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   floor_generator: ^1.5.0
   build_runner: ^2.4.13
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -86,3 +88,9 @@ flutter:
   # Assetleri buraya ekledik (Girintiler düzeltildi)
   assets:
     - assets/images/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21

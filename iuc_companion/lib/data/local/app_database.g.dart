@@ -82,6 +82,8 @@ class _$AppDatabase extends AppDatabase {
 
   ActiveCourseDao? _activeCourseDaoInstance;
 
+  AnnouncementDao? _announcementDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -104,7 +106,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Course` (`code` TEXT NOT NULL, `departmentId` INTEGER NOT NULL, `departmentGuid` TEXT, `name` TEXT NOT NULL, `credit` REAL NOT NULL, `ects` REAL NOT NULL, `isMandatory` INTEGER NOT NULL, `theory` INTEGER NOT NULL, `practice` INTEGER NOT NULL, `lab` INTEGER NOT NULL, `semester` TEXT NOT NULL, `linkId` TEXT NOT NULL, `unitId` TEXT NOT NULL, `year` INTEGER, `isRemoved` INTEGER NOT NULL, PRIMARY KEY (`code`))');
+            'CREATE TABLE IF NOT EXISTS `Course` (`code` TEXT NOT NULL, `departmentId` INTEGER NOT NULL, `departmentGuid` TEXT NOT NULL, `name` TEXT NOT NULL, `credit` REAL NOT NULL, `ects` REAL NOT NULL, `isMandatory` INTEGER NOT NULL, `theory` INTEGER NOT NULL, `practice` INTEGER NOT NULL, `lab` INTEGER NOT NULL, `semester` TEXT NOT NULL, `linkId` TEXT NOT NULL, `unitId` TEXT NOT NULL, `year` INTEGER, `isRemoved` INTEGER NOT NULL, PRIMARY KEY (`code`, `departmentGuid`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduleItem` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `profileId` INTEGER NOT NULL, `courseCode` TEXT, `day` TEXT NOT NULL, `time` TEXT NOT NULL, `courseName` TEXT NOT NULL, `instructor` TEXT NOT NULL, `location` TEXT NOT NULL, `semester` TEXT NOT NULL)');
         await database.execute(
@@ -113,6 +115,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `Profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `profileName` TEXT NOT NULL, `departmentGuid` TEXT NOT NULL, `departmentName` TEXT NOT NULL, `facultyId` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ActiveCourse` (`profileId` INTEGER NOT NULL, `courseCode` TEXT NOT NULL, `colorValue` INTEGER NOT NULL, PRIMARY KEY (`profileId`, `courseCode`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `AnnouncementSource` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `siteKey` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, `lastAnnouncementId` TEXT, `lastCheckDate` TEXT)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -144,6 +148,12 @@ class _$AppDatabase extends AppDatabase {
   ActiveCourseDao get activeCourseDao {
     return _activeCourseDaoInstance ??=
         _$ActiveCourseDao(database, changeListener);
+  }
+
+  @override
+  AnnouncementDao get announcementDao {
+    return _announcementDaoInstance ??=
+        _$AnnouncementDao(database, changeListener);
   }
 }
 
@@ -188,7 +198,7 @@ class _$CourseDao extends CourseDao {
         mapper: (Map<String, Object?> row) => Course(
             code: row['code'] as String,
             departmentId: row['departmentId'] as int,
-            departmentGuid: row['departmentGuid'] as String?,
+            departmentGuid: row['departmentGuid'] as String,
             name: row['name'] as String,
             credit: row['credit'] as double,
             ects: row['ects'] as double,
@@ -236,6 +246,21 @@ class _$ScheduleDao extends ScheduleDao {
                   'instructor': item.instructor,
                   'location': item.location,
                   'semester': item.semester
+                }),
+        _scheduleItemDeletionAdapter = DeletionAdapter(
+            database,
+            'ScheduleItem',
+            ['id'],
+            (ScheduleItem item) => <String, Object?>{
+                  'id': item.id,
+                  'profileId': item.profileId,
+                  'courseCode': item.courseCode,
+                  'day': item.day,
+                  'time': item.time,
+                  'courseName': item.courseName,
+                  'instructor': item.instructor,
+                  'location': item.location,
+                  'semester': item.semester
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -245,6 +270,8 @@ class _$ScheduleDao extends ScheduleDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<ScheduleItem> _scheduleItemInsertionAdapter;
+
+  final DeletionAdapter<ScheduleItem> _scheduleItemDeletionAdapter;
 
   @override
   Future<List<ScheduleItem>> getScheduleForProfile(int profileId) async {
@@ -271,9 +298,24 @@ class _$ScheduleDao extends ScheduleDao {
   }
 
   @override
+  Future<void> deleteScheduleItemsByCourse(
+    int profileId,
+    String courseCode,
+  ) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM ScheduleItem WHERE profileId = ?1 AND courseCode = ?2',
+        arguments: [profileId, courseCode]);
+  }
+
+  @override
   Future<void> insertSchedule(List<ScheduleItem> items) async {
     await _scheduleItemInsertionAdapter.insertList(
         items, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> deleteScheduleItem(ScheduleItem item) async {
+    await _scheduleItemDeletionAdapter.delete(item);
   }
 }
 
@@ -435,5 +477,80 @@ class _$ActiveCourseDao extends ActiveCourseDao {
   Future<void> insertActiveCourse(ActiveCourse activeCourse) async {
     await _activeCourseInsertionAdapter.insert(
         activeCourse, OnConflictStrategy.replace);
+  }
+}
+
+class _$AnnouncementDao extends AnnouncementDao {
+  _$AnnouncementDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _announcementSourceInsertionAdapter = InsertionAdapter(
+            database,
+            'AnnouncementSource',
+            (AnnouncementSource item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'siteKey': item.siteKey,
+                  'categoryId': item.categoryId,
+                  'lastAnnouncementId': item.lastAnnouncementId,
+                  'lastCheckDate': item.lastCheckDate
+                }),
+        _announcementSourceDeletionAdapter = DeletionAdapter(
+            database,
+            'AnnouncementSource',
+            ['id'],
+            (AnnouncementSource item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'siteKey': item.siteKey,
+                  'categoryId': item.categoryId,
+                  'lastAnnouncementId': item.lastAnnouncementId,
+                  'lastCheckDate': item.lastCheckDate
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<AnnouncementSource>
+      _announcementSourceInsertionAdapter;
+
+  final DeletionAdapter<AnnouncementSource> _announcementSourceDeletionAdapter;
+
+  @override
+  Future<List<AnnouncementSource>> getAllSources() async {
+    return _queryAdapter.queryList('SELECT * FROM AnnouncementSource',
+        mapper: (Map<String, Object?> row) => AnnouncementSource(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            siteKey: row['siteKey'] as String,
+            categoryId: row['categoryId'] as int,
+            lastAnnouncementId: row['lastAnnouncementId'] as String?,
+            lastCheckDate: row['lastCheckDate'] as String?));
+  }
+
+  @override
+  Future<void> updateSourceStatus(
+    int id,
+    String lastId,
+    String checkDate,
+  ) async {
+    await _queryAdapter.queryNoReturn(
+        'UPDATE AnnouncementSource SET lastAnnouncementId = ?2, lastCheckDate = ?3 WHERE id = ?1',
+        arguments: [id, lastId, checkDate]);
+  }
+
+  @override
+  Future<void> insertSource(AnnouncementSource source) async {
+    await _announcementSourceInsertionAdapter.insert(
+        source, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> deleteSource(AnnouncementSource source) async {
+    await _announcementSourceDeletionAdapter.delete(source);
   }
 }

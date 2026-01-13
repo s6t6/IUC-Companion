@@ -26,10 +26,11 @@ class HomeViewModel extends ChangeNotifier {
   // Dashboard
   ScheduleItem? _nextClass;
   bool _hasRawSchedule = false;
+  bool _isDayEmpty = false;
 
   // Getters
   Map<String, List<Course>> get coursesBySemester => _coursesBySemester;
-  List<Course> get removedCourses => _removedCourses; // Expose removed courses
+  List<Course> get removedCourses => _removedCourses;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -39,6 +40,7 @@ class HomeViewModel extends ChangeNotifier {
 
   ScheduleItem? get nextClass => _nextClass;
   bool get hasRawSchedule => _hasRawSchedule;
+  bool get isDayEmpty => _isDayEmpty;
 
   List<String> get sortedSemesters => SemesterHelper.sortSemesters(_coursesBySemester.keys);
 
@@ -82,6 +84,7 @@ class HomeViewModel extends ChangeNotifier {
 
     if (!_hasRawSchedule) {
       _nextClass = null;
+      _isDayEmpty = true;
       return;
     }
 
@@ -101,7 +104,11 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   ScheduleItem? _findNextClass(List<ScheduleItem> scheduleList) {
-    if (scheduleList.isEmpty) return null;
+    _isDayEmpty = false;
+    if (scheduleList.isEmpty) {
+      _isDayEmpty = true;
+      return null;
+    }
 
     final now = DateTime.now();
     const dayMap = {
@@ -116,30 +123,46 @@ class HomeViewModel extends ChangeNotifier {
     s.day.toLowerCase() == todayString.toLowerCase()
     ).toList();
 
-    if (todaysClasses.isEmpty) return null;
+    if (todaysClasses.isEmpty) {
+      _isDayEmpty = true;
+      return null;
+    }
 
-    todaysClasses.sort((a, b) => _parseToMinutes(a.time).compareTo(_parseToMinutes(b.time)));
+    todaysClasses.sort((a, b) {
+      final t1 = _parseTimeRange(a.time);
+      final t2 = _parseTimeRange(b.time);
+      return (t1?.start ?? 0).compareTo(t2?.start ?? 0);
+    });
 
     final nowMinutes = now.hour * 60 + now.minute;
 
     for (var item in todaysClasses) {
-      final startMinutes = _parseToMinutes(item.time);
-      if (startMinutes > nowMinutes - 50) {
+      final range = _parseTimeRange(item.time);
+      if (range == null) continue;
+
+      if (range.end > nowMinutes) {
         return item;
       }
     }
+
     return null;
   }
 
-  int _parseToMinutes(String timeStr) {
+  ({int start, int end})? _parseTimeRange(String timeStr) {
     try {
-      final cleanTime = timeStr.split('-')[0].trim().replaceAll('.', ':');
-      final parts = cleanTime.split(':');
+      final clean = timeStr.trim().replaceAll('.', ':');
+      final parts = clean.split('-');
       if (parts.length >= 2) {
-        return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+        final startParts = parts[0].trim().split(':');
+        final endParts = parts[1].trim().split(':');
+
+        final startMin = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+        final endMin = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+
+        return (start: startMin, end: endMin);
       }
     } catch (_) {}
-    return 9999;
+    return null;
   }
 
   Future<void> switchProfile(Profile profile) async {

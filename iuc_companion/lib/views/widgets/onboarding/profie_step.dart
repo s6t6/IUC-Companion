@@ -26,7 +26,7 @@ class ProfileStep extends StatelessWidget {
 
         TextFormField(
           decoration: const InputDecoration(
-            labelText: "Profil İsmi (Örn: ÇAP, Yandal)",
+            labelText: "Profil İsmi",
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.person),
             hintText: "Profilinize bir isim verin",

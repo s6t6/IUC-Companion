@@ -44,7 +44,8 @@ class TranscriptStep extends StatelessWidget {
                     color: colorScheme.primary, size: 32),
                 const SizedBox(height: 8),
                 Text(
-                  "Başarılı! ${viewModel.extractedCourseCount} ders notu alındı.",
+                  "Başarılı! ${viewModel.extractedCourseCount} ders notu alındı. Eksik veya yanlış aktarılmış dersleri profil>profil ayarları "
+                      "sayfasından düzeltebilirsiniz.",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onPrimaryContainer),

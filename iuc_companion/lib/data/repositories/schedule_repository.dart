@@ -18,4 +18,16 @@ class ScheduleRepository {
   Future<void> clearSchedule(int profileId) async {
     await _database.scheduleDao.clearScheduleForProfile(profileId);
   }
+
+  Future<void> saveScheduleItems(List<ScheduleItem> items) async {
+    await _database.scheduleDao.insertSchedule(items);
+  }
+
+  Future<void> deleteScheduleItem(ScheduleItem item) {
+    return _database.scheduleDao.deleteScheduleItem(item);
+  }
+
+  Future<void> deleteCourse(int profileId, String courseCode) {
+    return _database.scheduleDao.deleteScheduleItemsByCourse(profileId, courseCode);
+  }
 }

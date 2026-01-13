@@ -43,7 +43,7 @@ class ScheduleStep extends StatelessWidget {
                 Icon(Icons.check, color: colorScheme.primary),
                 const SizedBox(height: 8),
                 Text(
-                  "Program başarıyla okundu!",
+                  "Program başarıyla okundu! Eksik veya hatalı kayıtları ayarlar > ders programı düzenle bölümünden düzenleyebilirsiniz.",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onPrimaryContainer),

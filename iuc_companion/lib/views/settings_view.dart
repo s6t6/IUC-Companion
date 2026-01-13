@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:iuc_companion/views/schedule_correction_view.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/theme_viewmodel.dart';
 import 'theme_selection_view.dart';
+import 'silent_mode_settings_view.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -44,6 +46,32 @@ class SettingsView extends StatelessWidget {
 
           const Divider(),
 
+          ListTile(
+            leading: Icon(Icons.do_not_disturb_on_outlined, color: colorScheme.primary),
+            title: const Text("Otomatik Sessiz Mod"),
+            subtitle: const Text("Konum ve Ders Programı ayarları"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SilentModeSettingsView()),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: Icon(Icons.edit_calendar, color: colorScheme.primary),
+            title: const Text("Ders Programını Düzenle"),
+            subtitle: const Text("Hatalı veya eksik dersleri düzeltin"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ScheduleCorrectionView()),
+              );
+            },
+          ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.notifications_outlined),
             title: const Text("Bildirimler"),

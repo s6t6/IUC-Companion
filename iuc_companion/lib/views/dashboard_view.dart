@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../viewmodels/theme_viewmodel.dart';
 import '../views/widgets/profile_selection_dialog.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/schedule_viewmodel.dart';
 import '../viewmodels/simulation_viewmodel.dart';
 import '../data/models/schedule_item.dart';
-import '../viewmodels/theme_viewmodel.dart';
+import 'announcement_list_view.dart';
 import 'course_planning_view.dart';
 import 'test_schedule_linking_view.dart';
 import 'academic_calendar_view.dart';
@@ -74,7 +75,7 @@ class DashboardView extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Durum Kartları (Ortalama ve Kredi)
+            // Durum Kartları
             Row(
               children: [
                 Expanded(child: _buildStatusCard(
@@ -103,7 +104,6 @@ class DashboardView extends StatelessWidget {
             Text("Hızlı Erişim", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
 
-            // Kısayollar
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -131,7 +131,6 @@ class DashboardView extends StatelessWidget {
                         context,
                         MaterialPageRoute(builder: (context) => const AcademicCalendarView()),
                       ).then((_) {
-                        // Takvimden dönünce Dashboard'u güncelle (seçimler değişmiş olabilir)
                         homeViewModel.loadCourses();
                       });
                     }
@@ -150,9 +149,14 @@ class DashboardView extends StatelessWidget {
                     );
                   },
                 ),
-
-                _buildShortcutChip(context, icon: Icons.restaurant, label: "Yemek Listesi"),
-                _buildShortcutChip(context, icon: Icons.announcement, label: "Duyurular"),
+                _buildShortcutChip(
+                    context,
+                    icon: Icons.announcement,
+                    label: "Duyurular",
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnouncementListView()));
+                    }
+                ),
               ],
             ),
           ],
@@ -244,8 +248,18 @@ class DashboardView extends StatelessWidget {
       );
     }
 
-    // 2. Durum: Program var ama bugün/şuan ders yok
+    // 2. Durum: Program Var ama Ders Yok
     if (nextClass == null) {
+      // isDayEmpty: TRUE -> Bugün hiç ders yok.
+      // isDayEmpty: FALSE -> Dersler vardı ama hepsi bitti.
+      final bool isFreeDay = homeVM.isDayEmpty;
+      final String title = isFreeDay ? "Bugün Boşsunuz!" : "Bugünlük bu kadar!";
+      final String subtitle = isFreeDay
+          ? "Bugün için planlanmış bir dersiniz yok. Tadını çıkarın."
+          : "Bugünkü tüm derslerinizi tamamladınız. İyi istirahatler.";
+
+      final IconData icon = isFreeDay ? Icons.weekend : Icons.nightlight_round;
+
       return _buildDashboardCard(
         context,
         gradient: LinearGradient(
@@ -261,20 +275,20 @@ class DashboardView extends StatelessWidget {
                 color: Colors.white.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.nightlight_round, color: Colors.white, size: 28),
+              child: Icon(icon, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Bugünlük bu kadar!",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  Text(
+                    title,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "İyi istirahatler.",
+                    subtitle,
                     style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13),
                   ),
                 ],
@@ -285,9 +299,10 @@ class DashboardView extends StatelessWidget {
       );
     }
 
-    // 3. Durum: Sıradaki Ders Var
+    // 3. Durum: Sıradaki veya Şu Anki Ders Var
     String timeStatus = "Yaklaşıyor";
     Color statusColor = Colors.white.withOpacity(0.9);
+    String endTimeStr = "";
 
     try {
       final now = TimeOfDay.now();
@@ -296,6 +311,9 @@ class DashboardView extends StatelessWidget {
       final parts = nextClass.time.split('-')[0].replaceAll('.', ':').split(':');
       final startMin = int.parse(parts[0]) * 60 + int.parse(parts[1]);
       final diff = startMin - nowMin;
+
+      final endParts = nextClass.time.split('-')[1].replaceAll('.', ':');
+      endTimeStr = "Bitiş: $endParts";
 
       if (diff <= 0) {
         timeStatus = "Şu an İşleniyor";
@@ -306,7 +324,9 @@ class DashboardView extends StatelessWidget {
       } else {
         timeStatus = "Bugün ${nextClass.time}";
       }
-    } catch (_) {}
+    } catch (_) {
+      timeStatus = "Bugün ${nextClass.time}";
+    }
 
     return _buildDashboardCard(
       context,
@@ -361,9 +381,19 @@ class DashboardView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Text(
-                      timeStatus,
-                      style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w600)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                          timeStatus,
+                          style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w800)
+                      ),
+                      if (timeStatus == "Şu an İşleniyor")
+                        Text(
+                            endTimeStr,
+                            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 10)
+                        )
+                    ],
                   ),
                 ],
               ),

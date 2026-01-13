@@ -59,4 +59,21 @@ class ApiService {
       throw Exception('Dersler yüklenemedi');
     }
   }
+
+  Future<List<dynamic>> getAnnouncements(String siteKey, int categoryId) async {
+    final url = 'https://service-cms.iuc.edu.tr/api/webclient/f_getNotices?siteKey=$siteKey&Categoryid=$categoryId&Page=1';
+
+    try {
+      final response = await http.get(Uri.parse(url)).timeout(AppConfig.apiTimeout);
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        // API yapısına göre data > Data > Data şeklinde liste dönüyor
+        return json['Data']['Data'] ?? [];
+      }
+    } catch (e) {
+      print("Duyuru çekme hatası ($siteKey): $e");
+    }
+    return [];
+  }
 }

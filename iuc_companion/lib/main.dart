@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:iuc_companion/services/background_service.dart';
+import 'package:iuc_companion/viewmodels/announcement_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'data/repositories/announcement_repository.dart';
 import 'viewmodels/theme_viewmodel.dart';
 import 'viewmodels/transcript_viewmodel.dart';
 import 'viewmodels/onboarding_viewmodel.dart';
@@ -23,9 +26,8 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final bool hasProfile = prefs.containsKey('user_department_guid');
 
-  final database = await $FloorAppDatabase
-      .databaseBuilder('app_database.db')
-      .build();
+  final database = await AppDatabase.init();
+  await initializeService();
 
   runApp(MyApp(
     hasProfile: hasProfile,
@@ -56,6 +58,7 @@ class MyApp extends StatelessWidget {
     // Repo
     final universityRepository = UniversityRepository(apiService, database);
     final scheduleRepository = ScheduleRepository(database);
+    final announcementRepository = AnnouncementRepository(database, apiService);
 
     // DI
     return MultiProvider(
@@ -63,6 +66,7 @@ class MyApp extends StatelessWidget {
         Provider<UniversityRepository>.value(value: universityRepository),
         Provider<ScheduleRepository>.value(value: scheduleRepository),
         Provider<AppDatabase>.value(value: database),
+        Provider<AnnouncementRepository>.value(value: announcementRepository),
 
         ChangeNotifierProvider(
           create: (_) => OnboardingViewModel(
@@ -72,7 +76,9 @@ class MyApp extends StatelessWidget {
             scheduleService,
           ),
         ),
-
+        ChangeNotifierProvider(
+          create: (_) => AnnouncementViewModel(announcementRepository),
+        ),
         ChangeNotifierProvider(
           create: (_) => HomeViewModel(universityRepository, scheduleRepository),
         ),

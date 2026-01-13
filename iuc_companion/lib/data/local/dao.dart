@@ -1,5 +1,6 @@
 import 'package:floor/floor.dart';
 import '../models/active_course.dart';
+import '../models/announcement_source.dart';
 import '../models/course.dart';
 import '../models/schedule_item.dart';
 import '../models/student_grade.dart';
@@ -19,16 +20,20 @@ abstract class CourseDao {
 
 @dao
 abstract class ScheduleDao {
-  // CHANGED: Filter by profileId
   @Query('SELECT * FROM ScheduleItem WHERE profileId = :profileId')
   Future<List<ScheduleItem>> getScheduleForProfile(int profileId);
 
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertSchedule(List<ScheduleItem> items);
 
-  // CHANGED: Delete only for specific profile
   @Query('DELETE FROM ScheduleItem WHERE profileId = :profileId')
   Future<void> clearScheduleForProfile(int profileId);
+
+  @delete
+  Future<void> deleteScheduleItem(ScheduleItem item);
+
+  @Query('DELETE FROM ScheduleItem WHERE profileId = :profileId AND courseCode = :courseCode')
+  Future<void> deleteScheduleItemsByCourse(int profileId, String courseCode);
 }
 
 @dao
@@ -71,4 +76,19 @@ abstract class ActiveCourseDao {
 
   @Query('DELETE FROM ActiveCourse WHERE profileId = :profileId AND courseCode = :courseCode')
   Future<void> deleteActiveCourse(int profileId, String courseCode);
+}
+
+@dao
+abstract class AnnouncementDao {
+  @Query('SELECT * FROM AnnouncementSource')
+  Future<List<AnnouncementSource>> getAllSources();
+
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<void> insertSource(AnnouncementSource source);
+
+  @delete
+  Future<void> deleteSource(AnnouncementSource source);
+
+  @Query('UPDATE AnnouncementSource SET lastAnnouncementId = :lastId, lastCheckDate = :checkDate WHERE id = :id')
+  Future<void> updateSourceStatus(int id, String lastId, String checkDate);
 }
