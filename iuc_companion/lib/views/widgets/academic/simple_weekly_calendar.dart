@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/planning_types.dart';
-import '../../../viewmodels/theme_viewmodel.dart';
 
 class SimpleWeeklyCalendar extends StatelessWidget {
   final Function(String day) onGetLayout;

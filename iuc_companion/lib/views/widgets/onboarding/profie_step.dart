@@ -43,7 +43,7 @@ class ProfileStep extends StatelessWidget {
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.school),
           ),
-          value: viewModel.selectedFaculty,
+          initialValue: viewModel.selectedFaculty,
           items: viewModel.faculties.map((Faculty faculty) {
             return DropdownMenuItem<Faculty>(
               value: faculty,
@@ -62,7 +62,7 @@ class ProfileStep extends StatelessWidget {
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.class_),
           ),
-          value: viewModel.selectedDepartment,
+          initialValue: viewModel.selectedDepartment,
           items: viewModel.departments.map((Department dept) {
             return DropdownMenuItem<Department>(
               value: dept,
