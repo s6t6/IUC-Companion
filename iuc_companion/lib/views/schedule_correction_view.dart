@@ -301,7 +301,7 @@ class _Body extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   DropdownButtonFormField<String>(
-                    value: selectedDay,
+                    initialValue: selectedDay,
                     decoration: const InputDecoration(labelText: "Gün"),
                     items: days
                         .map((d) => DropdownMenuItem(value: d, child: Text(d)))

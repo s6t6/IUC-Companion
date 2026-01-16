@@ -77,7 +77,6 @@ class SchoolZoneService {
   }
 
   Future<bool> _hasActiveCourseNow() async {
-
     final prefs = await SharedPreferences.getInstance();
     final activeProfileId = prefs.getInt('active_profile_id');
 
@@ -109,20 +108,27 @@ class SchoolZoneService {
     if (todayString == null) return false;
 
     final todaysClasses = items.where((s) =>
-    s.day.toLowerCase() == todayString.toLowerCase()
+    s.day.trim().toLowerCase() == todayString.toLowerCase()
     ).toList();
 
     if (todaysClasses.isEmpty) return false;
 
     final nowMinutes = now.hour * 60 + now.minute;
 
+    final regex = RegExp(r'(\d{1,2})[:.](\d{2})');
+
     for (var item in todaysClasses) {
       try {
-        final times = item.time.split('-');
-        if (times.length < 2) continue;
+        final matches = regex.allMatches(item.time).toList();
+        if (matches.length < 2) continue;
 
-        final start = _parseToMinutes(times[0]);
-        final end = _parseToMinutes(times[1]);
+        final startH = int.parse(matches[0].group(1)!);
+        final startM = int.parse(matches[0].group(2)!);
+        final endH = int.parse(matches[1].group(1)!);
+        final endM = int.parse(matches[1].group(2)!);
+
+        final start = startH * 60 + startM;
+        final end = endH * 60 + endM;
 
         if (nowMinutes >= (start - 5) && nowMinutes < end) {
           return true;
@@ -132,12 +138,5 @@ class SchoolZoneService {
       }
     }
     return false;
-  }
-
-  int _parseToMinutes(String timeStr) {
-    final clean = timeStr.trim().replaceAll('.', ':');
-    final parts = clean.split(':');
-    if (parts.length != 2) return 0;
-    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
   }
 }

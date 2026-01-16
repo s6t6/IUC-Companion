@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import '../data/models/course.dart';
-import '../data/models/schedule_item.dart';
 import '../data/models/student_grade.dart';
 import '../data/models/planning_types.dart';
 import '../data/models/active_course.dart';

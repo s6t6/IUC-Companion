@@ -120,7 +120,7 @@ class HomeViewModel extends ChangeNotifier {
     if (todayString == null) return null;
 
     final todaysClasses = scheduleList.where((s) =>
-    s.day.toLowerCase() == todayString.toLowerCase()
+    s.day.trim().toLowerCase() == todayString.toLowerCase()
     ).toList();
 
     if (todaysClasses.isEmpty) {
@@ -150,16 +150,17 @@ class HomeViewModel extends ChangeNotifier {
 
   ({int start, int end})? _parseTimeRange(String timeStr) {
     try {
-      final clean = timeStr.trim().replaceAll('.', ':');
-      final parts = clean.split('-');
-      if (parts.length >= 2) {
-        final startParts = parts[0].trim().split(':');
-        final endParts = parts[1].trim().split(':');
+      final regex = RegExp(r'(\d{1,2})[:.](\d{2})');
+      final matches = regex.allMatches(timeStr).toList();
 
-        final startMin = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
-        final endMin = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+      if (matches.length >= 2) {
+        final startH = int.parse(matches[0].group(1)!);
+        final startM = int.parse(matches[0].group(2)!);
 
-        return (start: startMin, end: endMin);
+        final endH = int.parse(matches[1].group(1)!);
+        final endM = int.parse(matches[1].group(2)!);
+
+        return (start: startH * 60 + startM, end: endH * 60 + endM);
       }
     } catch (_) {}
     return null;

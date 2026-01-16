@@ -242,7 +242,7 @@ class _CurriculumViewState extends State<CurriculumView> {
             ? Icon(Icons.archive_outlined, size: 18, color: theme.disabledColor)
             : course.isMandatory
             ? Tooltip(message: "Zorunlu", child: Icon(Icons.lock_outline, size: 18, color: colorScheme.outline))
-            : Tooltip(message: "Seçmeli", child: Icon(Icons.check_circle_outline, size: 18, color: Colors.green)),
+            : const Tooltip(message: "Seçmeli", child: Icon(Icons.check_circle_outline, size: 18, color: Colors.green)),
         onTap: () {
           final repository = context.read<UniversityRepository>();
           Navigator.push(

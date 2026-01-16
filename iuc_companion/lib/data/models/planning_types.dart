@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'course.dart';
 import 'schedule_item.dart';
 
