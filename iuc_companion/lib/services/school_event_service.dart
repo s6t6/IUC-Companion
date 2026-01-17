@@ -6,7 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/local/app_database.dart';
-import '../models/school_location.dart';
+import '../config/school_location.dart';
 import '../di/locator.dart';
 import 'sound_service.dart';
 

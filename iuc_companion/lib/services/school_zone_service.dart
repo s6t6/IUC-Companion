@@ -1,6 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/school_location.dart';
+import '../config/school_location.dart';
 import '../data/local/app_database.dart';
 import '../data/models/schedule_item.dart';
 import 'location_service.dart';
