@@ -25,12 +25,12 @@ class GradeDropdown extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: isGraded
-            ? colorScheme.primaryContainer.withOpacity(0.4)
+            ? colorScheme.primaryContainer.withValues(alpha: 0.4)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isGraded
-              ? colorScheme.primary.withOpacity(0.3)
+              ? colorScheme.primary.withValues(alpha: 0.3)
               : Colors.transparent,
         ),
       ),

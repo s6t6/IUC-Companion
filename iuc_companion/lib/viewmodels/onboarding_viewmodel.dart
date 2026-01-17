@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/faculty.dart';
 import '../data/models/department.dart';
@@ -127,31 +126,23 @@ class OnboardingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> pickAndProcessTranscript() async {
+  Future<void> processTranscript(File file, String fileName) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
+      _uploadedTranscriptName = fileName;
+      _setLoading(true);
 
-      if (result != null && result.files.single.path != null) {
-        File file = File(result.files.single.path!);
-        _uploadedTranscriptName = result.files.single.name;
-        _setLoading(true);
+      Map<String, String> grades = await _transcriptService.extractGrades(file);
 
-        Map<String, String> grades = await _transcriptService.extractGrades(file);
-
-        if (grades.isNotEmpty) {
-          _tempGrades = grades.entries
-              .map((e) => StudentGrade(
-              profileId: 0,
-              courseCode: e.key,
-              letterGrade: e.value))
-              .toList();
-        }
-
-        notifyListeners();
+      if (grades.isNotEmpty) {
+        _tempGrades = grades.entries
+            .map((e) => StudentGrade(
+            profileId: 0,
+            courseCode: e.key,
+            letterGrade: e.value))
+            .toList();
       }
+
+      notifyListeners();
     } catch (e) {
       _errorMessage = "Dosya işlenirken hata: $e";
     } finally {
@@ -159,42 +150,34 @@ class OnboardingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> pickAndProcessSchedule() async {
+  Future<void> processSchedule(File file, String fileName) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
+      _uploadedScheduleName = fileName;
+      _setLoading(true);
 
-      if (result != null && result.files.single.path != null) {
-        File file = File(result.files.single.path!);
-        _uploadedScheduleName = result.files.single.name;
-        _setLoading(true);
+      try {
+        final rawItems = await _scheduleService.extractSchedule(file);
 
-        try {
-          final rawItems = await _scheduleService.extractSchedule(file);
+        if (_selectedDepartment != null) {
+          final courses = await _universityRepository
+              .fetchCoursesByDepartment(_selectedDepartment!.guid);
 
-          if (_selectedDepartment != null) {
-            final courses = await _universityRepository
-                .fetchCoursesByDepartment(_selectedDepartment!.guid);
-
-            _tempSchedule =
-                _scheduleService.linkScheduleToCourses(rawItems, courses);
-          } else {
-            _tempSchedule = rawItems;
-          }
-
-          _errorMessage = null;
-        } catch (e) {
-          _errorMessage = e.toString().replaceAll("Exception:", "").trim();
-          _tempSchedule = [];
-          _uploadedScheduleName = null;
+          _tempSchedule =
+              _scheduleService.linkScheduleToCourses(rawItems, courses);
+        } else {
+          _tempSchedule = rawItems;
         }
 
-        notifyListeners();
+        _errorMessage = null;
+      } catch (e) {
+        _errorMessage = e.toString().replaceAll("Exception:", "").trim();
+        _tempSchedule = [];
+        _uploadedScheduleName = null;
       }
+
+      notifyListeners();
     } catch (e) {
-      _errorMessage = "Dosya seçimi sırasında hata: $e";
+      _errorMessage = "Dosya işlenirken hata: $e";
     } finally {
       _setLoading(false);
     }

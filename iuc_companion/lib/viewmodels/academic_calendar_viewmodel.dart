@@ -9,6 +9,7 @@ import '../data/repositories/university_repository.dart';
 import '../data/repositories/schedule_repository.dart';
 import '../data/local/app_database.dart';
 import '../services/course_planning_service.dart';
+import '../utils/semester_helper.dart';
 
 class AcademicCalendarViewModel extends ChangeNotifier {
   final UniversityRepository _uniRepo;
@@ -22,16 +23,53 @@ class AcademicCalendarViewModel extends ChangeNotifier {
   List<Course> _availableCourses = [];
   Map<String, int> _activeCoursesMap = {};
 
+  String _searchQuery = "";
+
   final Map<String, List<VisualTimeSlot>> _dailyLayouts = {};
 
   bool get isLoading => _isLoading;
   List<CourseOffering> get calendarOfferings => _calendarOfferings;
   List<Course> get availableCourses => _availableCourses;
+  String get searchQuery => _searchQuery;
+
+  List<Course> get filteredAvailableCourses {
+    if (_searchQuery.isEmpty) return _availableCourses;
+    final q = _searchQuery.toLowerCase();
+    return _availableCourses.where((c) =>
+    c.name.toLowerCase().contains(q) ||
+        c.code.toLowerCase().contains(q)
+    ).toList();
+  }
+
+
+  Map<String, List<Course>> get groupedAvailableCourses {
+    final Map<String, List<Course>> grouped = {};
+    for (var c in filteredAvailableCourses) {
+      final sem = c.semester.isEmpty ? "Diğer" : c.semester;
+      if (!grouped.containsKey(sem)) grouped[sem] = [];
+      grouped[sem]!.add(c);
+    }
+
+    for (var key in grouped.keys) {
+      grouped[key]!.sort((a, b) => a.code.compareTo(b.code));
+    }
+
+    return grouped;
+  }
+
+  List<String> get sortedSemesters {
+    return SemesterHelper.sortSemesters(groupedAvailableCourses.keys);
+  }
 
   int? _currentProfileId;
 
   AcademicCalendarViewModel(this._uniRepo, this._schedRepo, this._database) {
     _loadData();
+  }
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
   }
 
   Future<void> _loadData() async {

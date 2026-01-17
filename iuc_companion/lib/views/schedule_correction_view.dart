@@ -55,7 +55,7 @@ class _Body extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: ExpansionTile(
               backgroundColor:
-              colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               leading: CircleAvatar(
                 backgroundColor: colorScheme.primaryContainer,
                 child: Text(
@@ -242,26 +242,9 @@ class _Body extends StatelessWidget {
     String selectedDay = existingItem?.day.trim() ?? "Pazartesi";
     if (!days.contains(selectedDay)) selectedDay = "Pazartesi";
 
-    TimeOfDay startTime = const TimeOfDay(hour: 9, minute: 0);
-    TimeOfDay endTime = const TimeOfDay(hour: 9, minute: 50);
-
-    if (existingItem != null) {
-      try {
-        final regex = RegExp(r'(\d{1,2})[:.](\d{2})');
-        final matches = regex.allMatches(existingItem.time).toList();
-
-        if (matches.length >= 2) {
-          startTime = TimeOfDay(
-              hour: int.parse(matches[0].group(1)!),
-              minute: int.parse(matches[0].group(2)!));
-          endTime = TimeOfDay(
-              hour: int.parse(matches[1].group(1)!),
-              minute: int.parse(matches[1].group(2)!));
-        }
-      } catch (e) {
-        print("Time parsing error: $e");
-      }
-    }
+    final times = vm.getTimesFromItem(existingItem);
+    TimeOfDay startTime = times.start;
+    TimeOfDay endTime = times.end;
 
     final locCtrl = TextEditingController(text: existingItem?.location ?? "");
     final instrCtrl =
@@ -285,7 +268,7 @@ class _Body extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .primaryContainer
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -375,22 +358,16 @@ class _Body extends StatelessWidget {
                   child: const Text("İptal")),
               FilledButton(
                 onPressed: () {
-                  final timeString =
-                      "${_formatTime(startTime)}-${_formatTime(endTime)}";
-
-                  final newItem = ScheduleItem(
+                  vm.saveCourse(
                     id: existingItem?.id,
-                    profileId: 0,
                     courseCode: courseCode,
                     courseName: courseName,
                     day: selectedDay,
-                    time: timeString,
+                    startTime: startTime,
+                    endTime: endTime,
                     location: locCtrl.text,
                     instructor: instrCtrl.text,
-                    semester: "Manuel",
                   );
-
-                  vm.saveItem(newItem);
                   Navigator.pop(ctx);
                 },
                 child: const Text("Kaydet"),
@@ -400,12 +377,6 @@ class _Body extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String _formatTime(TimeOfDay t) {
-    final h = t.hour.toString().padLeft(2, '0');
-    final m = t.minute.toString().padLeft(2, '0');
-    return "$h.$m";
   }
 }
 

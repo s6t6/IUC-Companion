@@ -84,7 +84,7 @@ class ProfileStep extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [

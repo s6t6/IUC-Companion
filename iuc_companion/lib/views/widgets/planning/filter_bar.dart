@@ -41,7 +41,6 @@ class PlanningFilterBar extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final semantics = theme.extension<SemanticColors>();
 
-    // TODO: Ana renklerin burda kullanılması karışıklık yaratabilir. Mümkünse düzeltilecek.
     Color baseColor;
     switch (filter) {
       case CourseFilter.failed:
@@ -63,7 +62,7 @@ class PlanningFilterBar extends StatelessWidget {
     }
 
     final Color bgColor = isSelected ? baseColor : Colors.transparent;
-    final Color borderColor = isSelected ? Colors.transparent : baseColor.withOpacity(0.5);
+    final Color borderColor = isSelected ? Colors.transparent : baseColor.withValues(alpha: 0.5);
     final Color textColor = isSelected
         ? (ThemeData.estimateBrightnessForColor(baseColor) == Brightness.dark
         ? Colors.white

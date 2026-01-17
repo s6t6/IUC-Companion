@@ -14,7 +14,6 @@ class CurriculumView extends StatefulWidget {
 }
 
 class _CurriculumViewState extends State<CurriculumView> {
-  String _searchQuery = "";
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -38,7 +37,7 @@ class _CurriculumViewState extends State<CurriculumView> {
             ),
             border: InputBorder.none,
           ),
-          onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+          onChanged: (val) => viewModel.updateSearchQuery(val),
         )
             : const Text("Müfredat"),
         actions: [
@@ -51,8 +50,8 @@ class _CurriculumViewState extends State<CurriculumView> {
               setState(() {
                 if (_isSearching) {
                   _isSearching = false;
-                  _searchQuery = "";
                   _searchController.clear();
+                  viewModel.clearSearch();
                 } else {
                   _isSearching = true;
                 }
@@ -74,15 +73,9 @@ class _CurriculumViewState extends State<CurriculumView> {
   }
 
   Widget _buildSearchResults(HomeViewModel viewModel) {
-    final allCourses = [
-      ...viewModel.coursesBySemester.values.expand((e) => e),
-      ...viewModel.removedCourses
-    ].where((course) =>
-    course.name.toLowerCase().contains(_searchQuery) ||
-        course.code.toLowerCase().contains(_searchQuery))
-        .toList();
+    final results = viewModel.searchResults;
 
-    if (allCourses.isEmpty) {
+    if (results.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,8 +93,8 @@ class _CurriculumViewState extends State<CurriculumView> {
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: allCourses.length,
-      itemBuilder: (context, index) => _buildCourseItem(context, allCourses[index]),
+      itemCount: results.length,
+      itemBuilder: (context, index) => _buildCourseItem(context, results[index]),
     );
   }
 
@@ -144,11 +137,10 @@ class _CurriculumViewState extends State<CurriculumView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final double totalEcts = courses.fold(0, (sum, item) => sum + item.ects);
-    final double totalCredit = courses.fold(0, (sum, item) => sum + item.credit);
+    final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+    final totals = viewModel.getSemesterTotals(courses);
 
-    final headerColor = isRemovedSection ? colorScheme.error : colorScheme.primary;
-    final containerColor = isRemovedSection ? colorScheme.errorContainer.withOpacity(0.3) : colorScheme.surfaceContainer;
+    final containerColor = isRemovedSection ? colorScheme.errorContainer.withValues(alpha: 0.3) : colorScheme.surfaceContainer;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -157,7 +149,7 @@ class _CurriculumViewState extends State<CurriculumView> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-            color: isRemovedSection ? colorScheme.error.withOpacity(0.2) : theme.dividerColor.withOpacity(0.5)
+            color: isRemovedSection ? colorScheme.error.withValues(alpha: 0.2) : theme.dividerColor.withValues(alpha: 0.5)
         ),
       ),
       child: ExpansionTile(
@@ -188,7 +180,7 @@ class _CurriculumViewState extends State<CurriculumView> {
         subtitle: isRemovedSection
             ? const Text("Müfredattan çıkarılmış dersler")
             : Text(
-          "${totalCredit.toStringAsFixed(0)} Kredi • ${totalEcts.toStringAsFixed(0)} AKTS",
+          "${totals.credit.toStringAsFixed(0)} Kredi • ${totals.ects.toStringAsFixed(0)} AKTS",
           style: TextStyle(color: theme.textTheme.bodySmall?.color),
         ),
         children: courses.map((course) => _buildCourseItem(context, course)).toList(),
@@ -202,7 +194,7 @@ class _CurriculumViewState extends State<CurriculumView> {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: theme.dividerColor.withOpacity(0.2))),
+        border: Border(top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2))),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

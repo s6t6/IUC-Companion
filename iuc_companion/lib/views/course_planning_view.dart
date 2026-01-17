@@ -108,13 +108,13 @@ class _CoursePlanningContentState extends State<_CoursePlanningContent> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.calendar_today_rounded,
                 size: 64,
-                color: colorScheme.primary.withOpacity(0.8),
+                color: colorScheme.primary.withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(height: 24),

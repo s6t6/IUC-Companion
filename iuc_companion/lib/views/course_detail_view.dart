@@ -2,17 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/course_detail_viewmodel.dart';
 import '../data/models/course.dart';
+import '../di/locator.dart';
+import '../data/repositories/university_repository.dart';
 
-class CourseDetailView extends StatefulWidget {
-  final Course courseSummary; // Listeden gelen özet bilgi (başlık vs. için)
+class CourseDetailView extends StatelessWidget {
+  final Course courseSummary;
 
   const CourseDetailView({Key? key, required this.courseSummary}) : super(key: key);
 
   @override
-  State<CourseDetailView> createState() => _CourseDetailViewState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => CourseDetailViewModel(locator<UniversityRepository>()),
+      child: _CourseDetailContent(courseSummary: courseSummary),
+    );
+  }
 }
 
-class _CourseDetailViewState extends State<CourseDetailView> {
+class _CourseDetailContent extends StatefulWidget {
+  final Course courseSummary;
+
+  const _CourseDetailContent({required this.courseSummary});
+
+  @override
+  State<_CourseDetailContent> createState() => _CourseDetailContentState();
+}
+
+class _CourseDetailContentState extends State<_CourseDetailContent> {
 
   @override
   void initState() {

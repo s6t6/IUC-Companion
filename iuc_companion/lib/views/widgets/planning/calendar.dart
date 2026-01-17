@@ -28,10 +28,10 @@ class PlanningCalendar extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: theme.dividerColor.withOpacity(0.5)),
+            border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -61,7 +61,7 @@ class PlanningCalendar extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHigh.withOpacity(0.5),
+            color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: Text(
@@ -101,7 +101,7 @@ class PlanningCalendar extends StatelessWidget {
                           ),
                           Expanded(
                               child: Divider(
-                                  color: theme.dividerColor.withOpacity(0.3))),
+                                  color: theme.dividerColor.withValues(alpha: 0.3))),
                         ],
                       ),
                     ),
@@ -161,7 +161,7 @@ class PlanningCalendar extends StatelessWidget {
     final isSelected = offering.isSelected;
 
     // Arkapaln ve Yazı renkleri
-    final Color bgColor = isSelected ? baseColor : baseColor.withOpacity(0.15);
+    final Color bgColor = isSelected ? baseColor : baseColor.withValues(alpha: 0.15);
     Color textColor;
     if (isSelected) {
       textColor =
@@ -180,7 +180,7 @@ class PlanningCalendar extends StatelessWidget {
         border = null;
       }
     } else {
-      border = Border.all(color: baseColor.withOpacity(0.5), width: 1);
+      border = Border.all(color: baseColor.withValues(alpha: 0.5), width: 1);
     }
 
     return GestureDetector(
@@ -232,7 +232,7 @@ class PlanningCalendar extends StatelessWidget {
                         Text(
                           offering.course.code,
                           style: TextStyle(
-                            color: textColor.withOpacity(0.8),
+                            color: textColor.withValues(alpha: 0.8),
                             fontSize: 10,
                           ),
                           overflow: TextOverflow.ellipsis,

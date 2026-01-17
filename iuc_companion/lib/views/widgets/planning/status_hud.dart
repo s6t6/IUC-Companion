@@ -53,8 +53,8 @@ class PlanningStatusHUD extends StatelessWidget {
 
 
     final glassColor = Color.alphaBlend(
-      stateColor.withOpacity(0.12),
-      baseBg.withOpacity(0.85),
+      stateColor.withValues(alpha: 0.12),
+      baseBg.withValues(alpha: 0.85),
     );
 
     return AnimatedPositioned(
@@ -73,11 +73,11 @@ class PlanningStatusHUD extends StatelessWidget {
               color: glassColor,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               border: Border(
-                top: BorderSide(color: stateColor.withOpacity(0.3), width: 1),
+                top: BorderSide(color: stateColor.withValues(alpha: 0.3), width: 1),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, -5),
                 )
@@ -95,7 +95,7 @@ class PlanningStatusHUD extends StatelessWidget {
                         width: 48,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: theme.dividerColor.withOpacity(0.5),
+                          color: theme.dividerColor.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -107,7 +107,7 @@ class PlanningStatusHUD extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: stateColor.withOpacity(0.1),
+                                color: stateColor.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(statusIcon, color: stateColor, size: 24),
@@ -141,7 +141,7 @@ class PlanningStatusHUD extends StatelessWidget {
 
                             Icon(
                               isExpanded ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_up_rounded,
-                              color: theme.iconTheme.color?.withOpacity(0.5),
+                              color: theme.iconTheme.color?.withValues(alpha: 0.5),
                               size: 28,
                             )
                           ],
@@ -170,9 +170,9 @@ class PlanningStatusHUD extends StatelessWidget {
                         _buildSectionHeader(context, "SEÇİLEN DERSLER (${vm.selectedCourses.length})"),
                         Container(
                           decoration: BoxDecoration(
-                            color: theme.cardColor.withOpacity(0.5),
+                            color: theme.cardColor.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: theme.dividerColor.withOpacity(0.5)),
+                            border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
                           ),
                           child: Column(
                             children: vm.selectedCourses.isEmpty
@@ -198,7 +198,7 @@ class PlanningStatusHUD extends StatelessWidget {
                                         ? Icon(Icons.warning_amber_rounded, color: colorScheme.error)
                                         : Icon(Icons.check_circle_rounded, color: colorScheme.primary),
                                   ),
-                                  if (!isLast) Divider(height: 1, indent: 16, endIndent: 16, color: theme.dividerColor.withOpacity(0.5)),
+                                  if (!isLast) Divider(height: 1, indent: 16, endIndent: 16, color: theme.dividerColor.withValues(alpha: 0.5)),
                                 ],
                               );
                             }).toList(),
@@ -213,9 +213,9 @@ class PlanningStatusHUD extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: colorScheme.errorContainer.withOpacity(0.5),
+                              color: colorScheme.errorContainer.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: colorScheme.error.withOpacity(0.2)),
+                              border: Border.all(color: colorScheme.error.withValues(alpha: 0.2)),
                             ),
                             child: Row(
                               children: [
@@ -268,20 +268,20 @@ class PlanningStatusHUD extends StatelessWidget {
     Color iconColor;
 
     if (rule.isWarning) {
-      bg = colorScheme.errorContainer.withOpacity(0.4);
-      border = colorScheme.error.withOpacity(0.3);
+      bg = colorScheme.errorContainer.withValues(alpha: 0.4);
+      border = colorScheme.error.withValues(alpha: 0.3);
       icon = Icons.warning_amber_rounded;
       iconColor = colorScheme.error;
     } else if (rule.isSuccess) {
-      bg = colorScheme.primaryContainer.withOpacity(0.4);
-      border = colorScheme.primary.withOpacity(0.3);
+      bg = colorScheme.primaryContainer.withValues(alpha: 0.4);
+      border = colorScheme.primary.withValues(alpha: 0.3);
       icon = Icons.check_circle_outline_rounded;
       iconColor = colorScheme.primary;
     } else {
-      bg = theme.colorScheme.surfaceContainerHighest.withOpacity(0.4);
+      bg = theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
       border = Colors.transparent;
       icon = Icons.info_outline_rounded;
-      iconColor = theme.iconTheme.color!.withOpacity(0.7);
+      iconColor = theme.iconTheme.color!.withValues(alpha: 0.7);
     }
 
     return Container(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/academic_calendar_viewmodel.dart';
+import '../data/local/app_database.dart';
+import '../di/locator.dart';
 import '../data/repositories/university_repository.dart';
 import '../data/repositories/schedule_repository.dart';
-import '../data/local/app_database.dart';
 import 'widgets/academic/simple_weekly_calendar.dart';
 import 'course_selection_view.dart';
 import 'calendar_course_detail_view.dart';
@@ -13,20 +14,14 @@ class AcademicCalendarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uniRepo = Provider.of<UniversityRepository>(context, listen: false);
-    final schedRepo = Provider.of<ScheduleRepository>(context, listen: false);
 
-    return Consumer<UniversityRepository>(
-        builder: (context, uRepo, child) {
-          return ChangeNotifierProvider(
-            create: (ctx) => AcademicCalendarViewModel(
-                uRepo,
-                schedRepo,
-                Provider.of<AppDatabase>(ctx, listen: false)
-            ),
-            child: const _AcademicCalendarContent(),
-          );
-        }
+    return ChangeNotifierProvider(
+      create: (ctx) => AcademicCalendarViewModel(
+          locator<UniversityRepository>(),
+          locator<ScheduleRepository>(),
+          locator<AppDatabase>()
+      ),
+      child: const _AcademicCalendarContent(),
     );
   }
 }

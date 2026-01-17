@@ -32,6 +32,18 @@ class TranscriptViewModel extends ChangeNotifier {
 
   List<String> get sortedSemesters => SemesterHelper.sortSemesters(_coursesBySemester.keys);
 
+  ({double credit, double ects}) getSemesterTotals(String semester) {
+    final courses = _coursesBySemester[semester] ?? [];
+
+    final activeCourses = courses.where((c) => !c.isRemoved);
+
+    final double totalEcts = activeCourses.fold(0.0, (sum, item) => sum + item.ects);
+    final double totalCredit = activeCourses.fold(0.0, (sum, item) => sum + item.credit);
+
+    return (credit: totalCredit, ects: totalEcts);
+  }
+  // ----------------------------------------------
+
   Future<void> loadData() async {
     _isLoading = true;
     notifyListeners();

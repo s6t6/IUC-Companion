@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/schedule_item.dart';
 import '../data/repositories/schedule_repository.dart';
@@ -48,7 +47,7 @@ class ScheduleViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> pickAndUploadSchedule() async {
+  Future<bool> processAndSaveSchedule(File file) async {
     if (_activeProfileId == null) {
       _errorMessage = "Aktif profil bulunamadı.";
       notifyListeners();
@@ -63,58 +62,44 @@ class ScheduleViewModel extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final deptGuid = prefs.getString('user_department_guid');
 
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
+      final parsedItems = await _service.extractSchedule(file);
 
-      if (result != null) {
-        File file = File(result.files.single.path!);
-
-        final parsedItems = await _service.extractSchedule(file);
-
-        if (parsedItems.isEmpty) {
-          _errorMessage = "PDF'ten ders programı okunamadı.";
-          _isLoading = false;
-          notifyListeners();
-          return false;
-        }
-
-        List<ScheduleItem> linkedItems = parsedItems;
-
-        if (deptGuid != null) {
-          try {
-            final courses = await _uniRepository.fetchCoursesByDepartment(deptGuid);
-
-            linkedItems = _service.linkScheduleToCourses(parsedItems, courses);
-
-          } catch (e) {
-            print("Ders eşleştirme hatası (kritik değil, eşleşmeden devam ediliyor): $e");
-          }
-        }
-
-        final finalItems = linkedItems.map((item) => ScheduleItem(
-            profileId: _activeProfileId!,
-            courseCode: item.courseCode,
-            day: item.day,
-            time: item.time,
-            courseName: item.courseName,
-            instructor: item.instructor,
-            location: item.location,
-            semester: item.semester
-        )).toList();
-
-        await _repository.saveSchedule(_activeProfileId!, finalItems);
-
-        _schedule = finalItems;
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
+      if (parsedItems.isEmpty) {
+        _errorMessage = "PDF'ten ders programı okunamadı.";
         _isLoading = false;
         notifyListeners();
         return false;
       }
+
+      List<ScheduleItem> linkedItems = parsedItems;
+
+      if (deptGuid != null) {
+        try {
+          final courses = await _uniRepository.fetchCoursesByDepartment(deptGuid);
+          linkedItems = _service.linkScheduleToCourses(parsedItems, courses);
+
+        } catch (e) {
+          print("Ders eşleştirme hatası (kritik değil, eşleşmeden devam ediliyor): $e");
+        }
+      }
+
+      final finalItems = linkedItems.map((item) => ScheduleItem(
+          profileId: _activeProfileId!,
+          courseCode: item.courseCode,
+          day: item.day,
+          time: item.time,
+          courseName: item.courseName,
+          instructor: item.instructor,
+          location: item.location,
+          semester: item.semester
+      )).toList();
+
+      await _repository.saveSchedule(_activeProfileId!, finalItems);
+
+      _schedule = finalItems;
+      _isLoading = false;
+      notifyListeners();
+      return true;
     } catch (e) {
       _errorMessage = "Hata oluştu: $e";
       _isLoading = false;

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../viewmodels/onboarding_viewmodel.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../../../viewmodels/onboarding_viewmodel.dart';
 
 class ScheduleStep extends StatelessWidget {
   const ScheduleStep({super.key});
@@ -52,13 +54,23 @@ class ScheduleStep extends StatelessWidget {
                 Text(viewModel.uploadedScheduleName ?? "",
                     style: TextStyle(
                         fontSize: 12,
-                        color: colorScheme.onPrimaryContainer.withOpacity(0.8))),
+                        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8))),
               ],
             ),
           )
         else
           OutlinedButton.icon(
-            onPressed: () => viewModel.pickAndProcessSchedule(),
+            onPressed: () async {
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['pdf'],
+              );
+
+              if (result != null && result.files.single.path != null) {
+                File file = File(result.files.single.path!);
+                await viewModel.processSchedule(file, result.files.single.name);
+              }
+            },
             icon: const Icon(Icons.upload_file),
             label: const Text("Program PDF'i Seç"),
           ),
@@ -74,7 +86,7 @@ class ScheduleStep extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [

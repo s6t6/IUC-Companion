@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/academic_calendar_viewmodel.dart';
 import '../data/models/course.dart';
-import '../utils/semester_helper.dart';
 
 class CourseSelectionView extends StatefulWidget {
   const CourseSelectionView({super.key});
@@ -12,29 +11,21 @@ class CourseSelectionView extends StatefulWidget {
 }
 
 class _CourseSelectionViewState extends State<CourseSelectionView> {
-  String _searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<AcademicCalendarViewModel>(context);
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
-    final filteredCourses = vm.availableCourses.where((c) {
-      final q = _searchQuery.toLowerCase();
-      return c.name.toLowerCase().contains(q) ||
-          c.code.toLowerCase().contains(q);
-    }).toList();
-
-    final Map<String, List<Course>> grouped = {};
-    for (var c in filteredCourses) {
-      final sem = c.semester.isEmpty ? "Diğer" : c.semester;
-      if (!grouped.containsKey(sem)) grouped[sem] = [];
-      grouped[sem]!.add(c);
-    }
-
-    final sortedSemesters = SemesterHelper.sortSemesters(grouped.keys);
+    final sortedSemesters = vm.sortedSemesters;
+    final groupedCourses = vm.groupedAvailableCourses;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -50,29 +41,28 @@ class _CourseSelectionViewState extends State<CourseSelectionView> {
             hintStyle: TextStyle(color: theme.hintColor),
             prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
           ),
-          onChanged: (val) => setState(() => _searchQuery = val),
+          onChanged: (val) => vm.updateSearchQuery(val),
         ),
         actions: [
-          if (_searchQuery.isNotEmpty)
+          if (vm.searchQuery.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.clear),
               onPressed: () {
                 _searchController.clear();
-                setState(() => _searchQuery = "");
+                vm.updateSearchQuery("");
               },
             ),
           const SizedBox(width: 8),
         ],
       ),
-      body: filteredCourses.isEmpty
+      body: sortedSemesters.isEmpty
           ? _buildEmptyState(context)
           : ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: sortedSemesters.length,
         itemBuilder: (context, index) {
           final semester = sortedSemesters[index];
-          final courses = grouped[semester]!;
-          courses.sort((a, b) => a.code.compareTo(b.code));
+          final courses = groupedCourses[semester] ?? [];
 
           return _buildSemesterGroup(context, vm, semester, courses);
         },
@@ -93,7 +83,7 @@ class _CourseSelectionViewState extends State<CourseSelectionView> {
       color: colorScheme.surfaceContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+        side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
       ),
       child: ExpansionTile(
         initiallyExpanded: true,
@@ -102,7 +92,7 @@ class _CourseSelectionViewState extends State<CourseSelectionView> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
+            color: colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -141,9 +131,9 @@ class _CourseSelectionViewState extends State<CourseSelectionView> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+            top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
           ),
-          color: isActive ? courseColor.withOpacity(0.05) : null,
+          color: isActive ? courseColor.withValues(alpha: 0.05) : null,
         ),
         child: Row(
           children: [
@@ -203,7 +193,7 @@ class _CourseSelectionViewState extends State<CourseSelectionView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -223,7 +213,7 @@ class _CourseSelectionViewState extends State<CourseSelectionView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off, size: 64, color: theme.disabledColor.withOpacity(0.3)),
+          Icon(Icons.search_off, size: 64, color: theme.disabledColor.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
             "Ders bulunamadı.",

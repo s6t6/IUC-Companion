@@ -28,7 +28,7 @@ class CalendarCourseDetailView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(course.code),
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha: 0.1),
       ),
       body: Column(
         children: [
@@ -37,8 +37,8 @@ class CalendarCourseDetailView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              border: Border(bottom: BorderSide(color: color.withOpacity(0.3))),
+              color: color.withValues(alpha: 0.1),
+              border: Border(bottom: BorderSide(color: color.withValues(alpha: 0.3))),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,13 +127,13 @@ class CalendarCourseDetailView extends StatelessWidget {
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: color.withOpacity(0.5)),
+                    side: BorderSide(color: color.withValues(alpha: 0.5)),
                   ),
                   child: ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
+                        color: color.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.access_time_filled, color: color, size: 20),

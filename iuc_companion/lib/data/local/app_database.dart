@@ -31,6 +31,12 @@ abstract class AppDatabase extends FloorDatabase {
     ))
         .build();
   }
+
+  @transaction
+  Future<void> updateSourceStatusSafe(int id, String lastId, String checkDate) async {
+    await announcementDao.updateSourceStatus(id, lastId, checkDate);
+  }
+
   @override
   Future<void> close() async {
     print("DB Kapatıldı! StackTrace:\n${StackTrace.current}");

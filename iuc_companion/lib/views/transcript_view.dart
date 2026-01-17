@@ -63,15 +63,14 @@ class _SemesterCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final activeCourses = courses.where((c) => !c.isRemoved);
-    final double totalEcts = activeCourses.fold(0.0, (sum, item) => sum + item.ects);
-    final double totalCredit = activeCourses.fold(0.0, (sum, item) => sum + item.credit);
+    final vm = Provider.of<TranscriptViewModel>(context, listen: false);
+    final totals = vm.getSemesterTotals(semester);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+        side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.5)),
       ),
       elevation: 0,
       color: theme.cardColor,
@@ -87,7 +86,7 @@ class _SemesterCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          "${totalCredit.toStringAsFixed(0)} Kredi • ${totalEcts.toStringAsFixed(0)} AKTS",
+          "${totals.credit.toStringAsFixed(0)} Kredi • ${totals.ects.toStringAsFixed(0)} AKTS",
           style: TextStyle(color: theme.textTheme.bodySmall?.color),
         ),
         children: courses.map((course) {
@@ -117,7 +116,7 @@ class _CourseRow extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               border: Border(
-                top: BorderSide(color: theme.dividerColor.withOpacity(0.2)),
+                top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
               ),
             ),
             padding: const EdgeInsets.symmetric(vertical: 8),

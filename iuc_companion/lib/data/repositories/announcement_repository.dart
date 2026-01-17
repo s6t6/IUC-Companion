@@ -50,7 +50,7 @@ class AnnouncementRepository {
       // Eğer veritabanındaki son ID ile API'den gelen son ID farklıysa yeni duyuru var demektir
       if (source.lastAnnouncementId != latestId) {
 
-        await _database.announcementDao.updateSourceStatus(
+        await _database.updateSourceStatusSafe(
             source.id!,
             latestId,
             DateTime.now().toIso8601String()
@@ -66,7 +66,7 @@ class AnnouncementRepository {
     }
 
     // Sadece kontrol zamanını güncelle
-    await _database.announcementDao.updateSourceStatus(
+    await _database.updateSourceStatusSafe(
         source.id!,
         source.lastAnnouncementId ?? "",
         DateTime.now().toIso8601String()

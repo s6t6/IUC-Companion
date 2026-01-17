@@ -71,24 +71,65 @@ class ScheduleCorrectionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveItem(ScheduleItem item) async {
+  ({TimeOfDay start, TimeOfDay end}) getTimesFromItem(ScheduleItem? item) {
+    TimeOfDay startTime = const TimeOfDay(hour: 9, minute: 0);
+    TimeOfDay endTime = const TimeOfDay(hour: 9, minute: 50);
+
+    if (item != null) {
+      try {
+        final regex = RegExp(r'(\d{1,2})[:.](\d{2})');
+        final matches = regex.allMatches(item.time).toList();
+
+        if (matches.length >= 2) {
+          startTime = TimeOfDay(
+              hour: int.parse(matches[0].group(1)!),
+              minute: int.parse(matches[0].group(2)!));
+          endTime = TimeOfDay(
+              hour: int.parse(matches[1].group(1)!),
+              minute: int.parse(matches[1].group(2)!));
+        }
+      } catch (e) {
+        print("Zaman ayıklama hatasu: $e");
+      }
+    }
+    return (start: startTime, end: endTime);
+  }
+
+  Future<void> saveCourse({
+    required int? id,
+    required String courseCode,
+    required String courseName,
+    required String day,
+    required TimeOfDay startTime,
+    required TimeOfDay endTime,
+    required String location,
+    required String instructor,
+  }) async {
     if (_currentProfileId == null) return;
 
+    final timeString = "${_formatTime(startTime)}-${_formatTime(endTime)}";
+
     final itemToSave = ScheduleItem(
-      id: item.id,
+      id: id,
       profileId: _currentProfileId!,
-      courseCode: item.courseCode,
-      courseName: item.courseName,
-      day: item.day,
-      time: item.time,
-      location: item.location,
-      instructor: item.instructor,
-      semester: item.semester,
+      courseCode: courseCode,
+      courseName: courseName,
+      day: day,
+      time: timeString,
+      location: location,
+      instructor: instructor,
+      semester: "Manuel",
     );
 
     await _scheduleRepository.saveScheduleItems([itemToSave]);
     await _refreshSchedule();
     notifyListeners();
+  }
+
+  String _formatTime(TimeOfDay t) {
+    final h = t.hour.toString().padLeft(2, '0');
+    final m = t.minute.toString().padLeft(2, '0');
+    return "$h.$m";
   }
 
   Future<void> deleteItem(ScheduleItem item) async {

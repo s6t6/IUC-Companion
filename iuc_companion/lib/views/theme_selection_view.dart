@@ -37,7 +37,7 @@ class ThemeSelectionView extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
@@ -97,7 +97,7 @@ class ThemeSelectionView extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.black.withOpacity(0.1), width: 1),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.1), width: 1),
       ),
     );
   }

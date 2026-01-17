@@ -10,7 +10,6 @@ class AnnouncementViewModel extends ChangeNotifier {
   Map<String, List<AnnouncementItem>> _announcementsBySource = {};
 
   bool _isLoading = false;
-  String? _errorMessage;
 
   List<AnnouncementSource> get sources => _sources;
   Map<String, List<AnnouncementItem>> get announcementsBySource => _announcementsBySource;
@@ -22,7 +21,6 @@ class AnnouncementViewModel extends ChangeNotifier {
 
   Future<void> _init() async {
     await loadSources();
-    // Eğer hiç kaynak yoksa varsayılanı ekle
     if (_sources.isEmpty) {
       await addSource("Rektörlük", "8FF2191E5F0343B5AA2F9BF774F93F5A", 1);
     }
@@ -43,6 +41,24 @@ class AnnouncementViewModel extends ChangeNotifier {
     await _repository.addSource(newSource);
     await loadSources();
     fetchAllAnnouncements();
+  }
+
+  Future<bool> addSourceFromInput(String name, String siteKey, String categoryStr) async {
+    if (name.isEmpty || siteKey.isEmpty) return false;
+    final int categoryId = int.tryParse(categoryStr) ?? 1;
+    await addSource(name, siteKey, categoryId);
+    return true;
+  }
+
+  Future<bool> updateSourceFromInput(AnnouncementSource oldSource, String name, String siteKey, String categoryStr) async {
+    if (name.isEmpty || siteKey.isEmpty) return false;
+
+    await _repository.removeSource(oldSource);
+
+    final int categoryId = int.tryParse(categoryStr) ?? 1;
+    await addSource(name, siteKey, categoryId);
+
+    return true;
   }
 
   Future<void> removeSource(AnnouncementSource source) async {
@@ -68,5 +84,32 @@ class AnnouncementViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  List<AnnouncementItem> getRecentAnnouncements(String sourceName) {
+    final items = _announcementsBySource[sourceName] ?? [];
+    return items.take(5).toList();
+  }
+
+  List<({AnnouncementItem item, String sourceName})> get combinedLatestAnnouncements {
+    List<({AnnouncementItem item, String sourceName})> allItems = [];
+
+    _announcementsBySource.forEach((sourceName, list) {
+      for (var item in list) {
+        allItems.add((item: item, sourceName: sourceName));
+      }
+    });
+
+    allItems.sort((a, b) => b.item.date.compareTo(a.item.date));
+    return allItems.take(5).toList();
+  }
+
+  String getFormattedDate(String rawDate) {
+    if (rawDate.isEmpty) return "";
+    try {
+      return rawDate.split('T')[0];
+    } catch (_) {
+      return rawDate;
+    }
   }
 }

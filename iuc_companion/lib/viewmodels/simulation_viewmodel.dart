@@ -68,6 +68,15 @@ class SimulationViewModel extends ChangeNotifier {
 
   Future<void> initialize() async {
     _isLoading = true;
+
+    _allCourses = [];
+    _currentGrades = {};
+    _coursesBySemester = {};
+    _calculatedGPA = 0.0;
+    _totalCredits = 0;
+    _realGPA = 0.0;
+    _realTotalCredits = 0;
+
     notifyListeners();
 
     try {

@@ -51,7 +51,7 @@ class TestScheduleLinkingView extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                          color: theme.dividerColor.withOpacity(0.5)),
+                          color: theme.dividerColor.withValues(alpha: 0.5)),
                     ),
                     child: ExpansionTile(
                       leading: const Icon(Icons.link, color: Colors.green),
@@ -76,7 +76,7 @@ class TestScheduleLinkingView extends StatelessWidget {
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                         side: BorderSide(
-                            color: colorScheme.error.withOpacity(0.5)),
+                            color: colorScheme.error.withValues(alpha: 0.5)),
                         borderRadius: BorderRadius.circular(12)),
                     child: ExpansionTile(
                       leading: Icon(Icons.link_off, color: colorScheme.error),
@@ -120,7 +120,7 @@ class TestScheduleLinkingView extends StatelessWidget {
               fontWeight: FontWeight.w500)),
       subtitle: Text("${item.day} ${item.time} | ${item.instructor}",
           style: theme.textTheme.bodySmall?.copyWith(
-              color: textColor.withOpacity(0.8))),
+              color: textColor.withValues(alpha: 0.8))),
       leading: Icon(Icons.access_time, size: 16, color: iconColor),
     );
   }

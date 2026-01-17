@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../../viewmodels/onboarding_viewmodel.dart';
 
 class TranscriptStep extends StatelessWidget {
@@ -36,7 +38,7 @@ class TranscriptStep extends StatelessWidget {
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [
@@ -54,14 +56,22 @@ class TranscriptStep extends StatelessWidget {
                 Text(viewModel.uploadedTranscriptName ?? "",
                     style: TextStyle(
                         fontSize: 12,
-                        color: colorScheme.onPrimaryContainer.withOpacity(0.8))),
+                        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8))),
               ],
             ),
           )
         else
           OutlinedButton.icon(
             onPressed: () async {
-              await viewModel.pickAndProcessTranscript();
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['pdf'],
+              );
+
+              if (result != null && result.files.single.path != null) {
+                File file = File(result.files.single.path!);
+                await viewModel.processTranscript(file, result.files.single.name);
+              }
             },
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
@@ -83,7 +93,7 @@ class TranscriptStep extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
